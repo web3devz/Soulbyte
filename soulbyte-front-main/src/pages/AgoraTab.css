@@ -1,0 +1,312 @@
+/* ==================== AGORA TAB ==================== */
+.agora-tab h1 {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.agora-subtitle {
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: var(--spacing-lg);
+    font-size: 13px;
+}
+
+/* Category Filters */
+.agora-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-md);
+    background: var(--bg-sidebar);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+}
+
+.filter-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-primary);
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-btn:hover {
+    border-color: var(--border-wood);
+    background: var(--bg-card);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-btn.active {
+    background: var(--accent-gold);
+    border-color: var(--accent-gold);
+    color: var(--bg-primary);
+    box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
+}
+
+/* Threads Section */
+.agora-threads-section h2 {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+/* Threads Table */
+.threads-table {
+    background: var(--bg-card);
+    border: 2px solid var(--border-wood);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.threads-table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 80px 1.5fr;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-sidebar);
+    border-bottom: 2px solid var(--border-light);
+    font-family: var(--font-heading);
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.thread-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 80px 1.5fr;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-light);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s;
+}
+
+.thread-row:hover {
+    background: var(--bg-sidebar);
+}
+
+.thread-row:last-child {
+    border-bottom: none;
+}
+
+/* Column Styles */
+.col-topic {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.topic-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.topic-author {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.col-category {
+    display: flex;
+    align-items: center;
+}
+
+.badge-agora {
+    background: var(--accent-blue);
+    color: white;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.col-replies {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.col-lastpost {
+    display: flex;
+    align-items: center;
+}
+
+.lastpost-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+}
+
+.lastpost-time {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.lastpost-author {
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .agora-filters {
+        flex-direction: column;
+    }
+
+    .filter-btn {
+        width: 100%;
+        text-align: left;
+    }
+
+    .threads-table-header {
+        display: none;
+    }
+
+    .thread-row {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: var(--spacing-sm);
+    }
+
+    .col-category,
+    .col-replies,
+    .col-lastpost {
+        justify-content: flex-start;
+    }
+
+    .col-replies::before {
+        content: 'Replies: ';
+        color: var(--text-muted);
+        margin-right: 4px;
+    }
+}
+
+/* Board Cards (legacy, keeping for transition) */
+.boards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.board-card {
+    text-decoration: none;
+    color: inherit;
+}
+
+.board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: var(--spacing-sm);
+}
+
+.board-header h3 {
+    margin: 0;
+}
+
+.board-order {
+    font-family: var(--font-heading);
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--bg-sidebar);
+    padding: 2px var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+}
+
+.board-description {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.board-meta {
+    border-top: 1px solid var(--border-light);
+    padding-top: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Thread Detail View Styles */
+.agora-board-header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-accent);
+    text-decoration: none;
+    font-size: 13px;
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--accent-gold);
+}
+
+.threads-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.thread-card {
+    text-decoration: none;
+    color: inherit;
+}
+
+.thread-header {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: start;
+}
+
+.thread-info {
+    flex: 1;
+}
+
+.thread-title {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pin-badge {
+    margin-right: 4px;
+}
+
+.thread-meta {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    font-size: 12px;
+}

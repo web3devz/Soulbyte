@@ -1,0 +1,122 @@
+/* ==================== AGORA THREAD ==================== */
+.agora-thread {
+    max-width: 800px;
+}
+
+.thread-header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.thread-header h1 {
+    margin-bottom: var(--spacing-xs);
+}
+
+.posts-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.post {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-card),
+        var(--shadow-bevel-up);
+}
+
+.post-deleted {
+    opacity: 0.5;
+    background: var(--bg-sidebar);
+    border-style: dashed;
+}
+
+.post-header {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.post-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.post-author {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.post-time {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+.post-content {
+    margin-bottom: var(--spacing-md);
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.post-content p {
+    margin-bottom: var(--spacing-sm);
+}
+
+.deleted-message {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.post-footer {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--border-light);
+}
+
+.vote-count {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.flagged-badge {
+    font-size: 10px;
+    font-family: var(--font-heading);
+    color: var(--accent-red);
+    font-weight: 600;
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--text-accent);
+    text-decoration: none;
+    font-size: 13px;
+    margin-bottom: var(--spacing-sm);
+    transition: color 0.15s;
+}
+
+.back-link:hover {
+    color: var(--primary);
+}
+
+.post-author-link {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.post-author-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-sm);
+}

@@ -1,0 +1,38 @@
+.business-detail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.business-detail .wallet-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.employees-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.employee-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.employee-row:last-child {
+    border-bottom: none;
+}
+
+.employee-name {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.employee-name:hover {
+    color: var(--primary);
+}

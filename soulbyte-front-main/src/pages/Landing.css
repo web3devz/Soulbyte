@@ -1,0 +1,193 @@
+/* ==================== LANDING PAGE ==================== */
+.landing {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image: url('/images/bg-landing.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+/* Dark overlay to make text readable */
+.landing::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg,
+            rgba(0, 0, 0, 0.4) 0%,
+            rgba(59, 39, 18, 0.5) 50%,
+            rgba(0, 0, 0, 0.6) 100%);
+    z-index: 0;
+}
+
+.landing-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.landing-logo {
+    width: clamp(180px, 25vw, 320px);
+    height: auto;
+    object-fit: contain;
+    margin-bottom: var(--spacing-xl);
+    image-rendering: pixelated;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
+}
+
+.landing-title {
+    font-size: clamp(32px, 6vw, 56px);
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-on-dark);
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(232, 213, 183, 0.3);
+}
+
+.landing-tagline {
+    font-size: clamp(14px, 2vw, 18px);
+    color: var(--bg-card);
+    font-style: italic;
+    margin-bottom: var(--spacing-2xl);
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.landing-buttons {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.landing-buttons .btn {
+    min-width: 220px;
+    /* Increased width */
+    padding: 16px 32px;
+    /* Increased padding */
+    font-size: 14px;
+    /* Increased font size */
+    animation: pulse-soft 2s infinite;
+}
+
+.landing-buttons .btn:hover {
+    animation: emphasis-hover 0.4s ease-in-out forwards;
+}
+
+@keyframes pulse-soft {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(196, 149, 106, 0.7);
+    }
+
+    70% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 6px rgba(196, 149, 106, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(196, 149, 106, 0);
+    }
+}
+
+@keyframes emphasis-hover {
+    0% {
+        transform: scale(1.02);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1.05);
+    }
+}
+
+.landing-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--spacing-lg);
+    max-width: 800px;
+    width: 100%;
+    margin-top: var(--spacing-2xl);
+}
+
+.feature-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border-panel);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    text-align: center;
+    box-shadow: var(--shadow-card),
+        var(--shadow-bevel-up);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-raised),
+        var(--shadow-bevel-up);
+}
+
+.feature-icon {
+    font-size: 40px;
+    margin-bottom: var(--spacing-md);
+}
+
+.feature-card h3 {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.feature-card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.landing-footer {
+    padding: var(--spacing-lg);
+    text-align: center;
+    background: linear-gradient(180deg, #6B4C30, #5C3D1E);
+    color: var(--text-on-dark);
+    border-top: 2px solid var(--border-dark);
+    position: relative;
+    z-index: 1;
+}
+
+.landing-footer .label {
+    color: var(--text-on-dark);
+    margin: 0;
+    opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+    .landing-title {
+        font-size: 24px;
+    }
+
+    .landing-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .landing-features {
+        grid-template-columns: 1fr;
+    }
+}
