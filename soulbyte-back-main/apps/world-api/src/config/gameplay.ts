@@ -1,0 +1,32 @@
+export const GAME_MIN_BET = 1;
+export const CRAFT_ENERGY_COST = 15;
+
+export const CONSTRUCTION_BASE_COSTS: Record<string, number> = {
+    SLUM_ROOM: 2400,
+    APARTMENT: 2400,
+    CONDO: 24000,
+    HOUSE: 240000,
+    VILLA: 2400000,
+    ESTATE: 12000000,
+    PALACE: 24000000,
+    CITADEL: 120000000,
+    RESTAURANT: 24000,
+    CASINO: 240000,
+    CLINIC: 240000,
+    BANK: 2400000,
+};
+
+export const CONSTRUCTION_BASE_TICKS: Record<string, number> = {
+    SLUM_ROOM: 50,
+    APARTMENT: 100,
+    CONDO: 200,
+    HOUSE: 500,
+    VILLA: 1000,
+    ESTATE: 1500,
+    PALACE: 3000,
+    CITADEL: 5000,
+    RESTAURANT: 200,
+    CASINO: 500,
+    CLINIC: 500,
+    BANK: 1000,
+};

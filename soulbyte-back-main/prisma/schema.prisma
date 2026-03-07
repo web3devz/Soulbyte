@@ -1,0 +1,1929 @@
+// Soulbyte Database Schema
+// Based on DATABASE_SCHEMA_SPEC.md
+// PostgreSQL + Prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum ActorKind {
+  agent
+  system
+}
+
+enum HousingTier {
+  street
+  shelter
+  slum_room
+  apartment
+  condo
+  house
+  villa
+  estate
+  palace
+  citadel
+}
+
+enum WealthTier {
+  W0 // Bankrupt (0)
+  W1 // Destitute (1-10)
+  W2 // Poor (11-100)
+  W3 // Working (101-1000)
+  W4 // Lower Middle (1001-10000)
+  W5 // Middle (10001-100000)
+  W6 // Upper Middle (100001-500000)
+  W7 // Rich (500001-1000000)
+  W8 // Elite (1000001-5000000)
+  W9 // Ultra-Elite (5000001+)
+}
+
+enum JobType {
+  unemployed
+  begging
+  menial
+  labor
+  skilled
+  creative
+  executive
+  investor
+  governor
+  mayor
+}
+
+enum IntentStatus {
+  pending
+  queued
+  approved
+  blocked
+  rewritten
+  executed
+}
+
+enum EventOutcome {
+  success
+  fail
+  blocked
+}
+
+enum ProposalType {
+  upgrade
+  tax_change
+  aid
+  security
+  housing
+}
+
+enum ProposalStatus {
+  pending
+  approved
+  rejected
+}
+
+enum ConsentType {
+  marriage
+  dating
+  trade
+  housing
+  alliance
+  lease
+  spouse_move
+  game_challenge
+}
+
+enum ConsentStatus {
+  pending
+  active
+  ended
+  expired
+  withdrawn
+}
+
+enum CrimeType {
+  theft
+  fraud
+  mugging
+  assault
+}
+
+enum SettlementStatus {
+  pending
+  completed
+  failed
+}
+
+enum SkillCategory {
+  core
+  life
+  economy
+  social
+  agora
+  safety
+  governance
+  crime
+  police
+}
+
+// ============================================================================
+// NEW ENUMS (Incoherence Fixes 2026-02-04)
+// ============================================================================
+
+enum ItemCategory {
+  material
+  consumable
+  tool
+  weapon
+  armor
+  crafted
+  special
+}
+
+enum ListingStatus {
+  active
+  sold
+  cancelled
+  expired
+}
+
+enum BusinessType {
+  BANK
+  CASINO
+  STORE
+  RESTAURANT
+  TAVERN
+  GYM
+  CLINIC
+  REALESTATE
+  WORKSHOP
+  ENTERTAINMENT
+  CONSTRUCTION
+}
+
+enum BusinessStatus {
+  ACTIVE
+  INSOLVENT
+  BANKRUPT
+  DISSOLVED
+  SOLD
+}
+
+enum BusinessImprovementCategory {
+  DECOR
+  EQUIPMENT
+  SECURITY
+  MARKETING
+  TRAINING
+}
+
+enum BusinessListingStatus {
+  ACTIVE
+  SOLD
+  CANCELLED
+}
+
+enum LoanStatus {
+  ACTIVE
+  REPAID
+  DEFAULTED
+}
+
+enum LifeEventCategory {
+  FORTUNE
+  MISFORTUNE
+}
+
+enum ElectionStatus {
+  scheduled
+  nomination
+  voting
+  completed
+  cancelled
+}
+
+enum CandidateStatus {
+  nominated
+  withdrawn
+  elected
+  defeated
+}
+
+enum MarriageStatus {
+  active
+  divorced
+  widowed
+}
+
+enum AgentVerificationStatus {
+  unverified
+  verified
+  suspended
+  revoked
+}
+
+// ============================================================================
+// PUBLIC PLACES & EMPLOYMENT (Genesis Economy 2026-02-04)
+// ============================================================================
+
+enum PublicPlaceType {
+  HOSPITAL
+  SCHOOL
+  POLICE_STATION
+  IMPORT_CENTER
+  MUNICIPAL_THEATER
+  COMMUNITY_CENTER
+  PUBLIC_LIBRARY
+  CENTRAL_PLAZA
+}
+
+enum PublicRoleType {
+  DOCTOR
+  NURSE
+  TEACHER
+  POLICE_OFFICER
+}
+
+enum ActivityState {
+  IDLE
+  WORKING
+  RESTING
+  COMMUTING
+  JAILED
+}
+
+enum LotType {
+  SLUM_LOT
+  URBAN_LOT
+  SUBURBAN_LOT
+  LUXURY_LOT
+  ROYAL_LOT
+}
+
+// ============================================================================
+// CORE ENTITIES
+// ============================================================================
+
+/// Stores all beings in the world (agents + system bots like God)
+model Actor {
+  id           String    @id @default(uuid()) @db.Uuid
+  kind         ActorKind
+  isGod        Boolean   @default(false) @map("is_god")
+  name         String
+  createdAt    DateTime  @default(now()) @map("created_at")
+  frozen       Boolean   @default(false)
+  frozenReason String?   @map("frozen_reason")
+  dead         Boolean   @default(false)
+  seed         BigInt?
+  reputation   Decimal   @default(200) @db.Decimal(6, 2)
+  luck         Int       @default(50)
+  lastLifeEventTick    Int?    @map("last_life_event_tick")
+  lifeEventsThisMonth  Int     @default(0) @map("life_events_this_month")
+  lifeEventsMonthStart Int?    @map("life_events_month_start")
+  totalFortuneReceived Decimal @default(0) @map("total_fortune_received") @db.Decimal(24, 8)
+  totalMisfortuneSuffered Decimal @default(0) @map("total_misfortune_suffered") @db.Decimal(24, 8)
+
+  // Relations
+  agentState       AgentState?
+  wallet           Wallet?
+  intents          Intent[]
+  eventsAsActor    Event[]        @relation("ActorEvents")
+  crimesCommitted  Crime[]        @relation("Criminal")
+  crimesVictim     Crime[]        @relation("Victim")
+  jail             Jail?
+  adminLogs        AdminLog[]
+  skillsEnabled    AgentSkill[]
+  transactionsFrom Transaction[]  @relation("TransactionFrom")
+  transactionsTo   Transaction[]  @relation("TransactionTo")
+  consentsAsPartyA Consent[]      @relation("ConsentPartyA")
+  consentsAsPartyB Consent[]      @relation("ConsentPartyB")
+  relationshipsA   Relationship[] @relation("RelationshipA")
+  relationshipsB   Relationship[] @relation("RelationshipB")
+  agentMemories    AgentMemory[]  @relation("ActorMemories")
+  personaState     PersonaState?
+  personaModifiers PersonaModifiersCache?
+  agoraPosts       AgoraPost[]    @relation("AgoraPostAuthor")
+  agoraThreads     AgoraThread[]  @relation("AgoraThreadAuthor")
+  citiesAsMayor    City[]         @relation("CityMayor")
+  proposals        CityProposal[] @relation("ProposalMayor")
+  inventoryItems      InventoryItem[]
+  marketListings      MarketListing[]
+  agentWallet         AgentWallet?
+  withdrawalRequests  WithdrawalRequest[]
+  businessesOwned     Business[]
+  privateEmployments  PrivateEmployment[]
+  businessListings    BusinessListing[] @relation("BusinessListingSeller")
+  loansBorrowed       Loan[]            @relation("BorrowerLoans")
+  lifeEvents          LifeEvent[]
+  apiKeys             ApiKey[]
+  publicEmployment    PublicEmployment?
+  pnlSnapshots        PnlSnapshot[]
+  pnlLeaderboardEntries PnlLeaderboard[]
+
+  @@map("actors")
+}
+
+/// Agent-specific state (not for God/system bots)
+model AgentState {
+  actorId         String      @id @map("actor_id") @db.Uuid
+  cityId          String?     @map("city_id") @db.Uuid
+  housingTier     HousingTier @default(street) @map("housing_tier")
+  jobType         JobType     @default(unemployed) @map("job_type")
+  wealthTier      WealthTier  @default(W0) @map("wealth_tier")
+  balanceSbyte    Decimal     @default(0) @map("balance_sbyte") @db.Decimal(24, 8)
+  reputationScore Int         @default(50) @map("reputation_score")
+  health          Int         @default(100)
+  energy          Int         @default(100)
+  hunger          Int         @default(100)
+  social          Int         @default(50)
+  fun             Int         @default(50)
+  purpose         Int         @default(50)
+
+  // Personality & emotions (expansion)
+  personality     Json        @default("{}") @db.JsonB
+  emotions        Json        @default("{}") @db.JsonB
+  markers         Json        @default("{}") @db.JsonB
+  archetype       String?     @map("archetype")
+
+  // Activity state (work/rest blocking)
+  activityState    ActivityState @default(IDLE) @map("activity_state")
+  activityEndTick  Int?          @map("activity_end_tick")
+  publicExperience Int           @default(0) @map("public_experience")
+  anger            Int           @default(0)
+  lastMoveTick     Int?          @map("last_move_tick")
+  lastWorkedTick   Int?          @map("last_worked_tick")
+  lastJobChangeTick Int?         @map("last_job_change_tick")
+  workSegmentsCompleted Int      @default(0) @map("work_segments_completed")
+  workSegmentStartTick  Int?     @map("work_segment_start_tick")
+  workSegmentJobKey     String?  @map("work_segment_job_key")
+  lastWorkJobKey        String?  @map("last_work_job_key")
+  lastWorkSegmentTick   Int?     @map("last_work_segment_tick")
+
+  // Gaming stats
+  lastGameTick      Int?   @default(0) @map("last_game_tick")
+  gamesToday        Int    @default(0) @map("games_today")
+  gameWinStreak     Int    @default(0) @map("game_win_streak")
+  recentGamingPnl   Float  @default(0) @map("recent_gaming_pnl")
+  lastBigLossTick   Int?   @default(0) @map("last_big_loss_tick")
+  totalGamesPlayed  Int    @default(0) @map("total_games_played")
+  totalGamesWon     Int    @default(0) @map("total_games_won")
+
+  // Relations
+  actor Actor @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  city  City? @relation(fields: [cityId], references: [id])
+
+  @@map("agent_state")
+}
+
+enum RelationshipType {
+  FRIENDSHIP
+  RIVALRY
+  ALLIANCE
+  GRUDGE
+}
+
+enum AllianceStatus {
+  pending
+  active
+  dissolved
+}
+
+enum StoryArcStatus {
+  active
+  resolved
+  abandoned
+}
+
+/// Agent memory (short-term rolling)
+model AgentMemory {
+  id             String   @id @default(uuid()) @db.Uuid
+  actorId        String   @map("actor_id") @db.Uuid
+  // Legacy memory fields (kept for compatibility)
+  category       String?  @map("category")
+  key            String?  @map("key")
+  value          Json?    @db.JsonB
+  tick           Int
+  summary        String?
+  emotionalWeight Int?    @map("emotional_weight")
+  importance     Int?     @default(0)
+  relatedActorIds Json    @default("[]") @map("related_actor_ids") @db.JsonB
+  decayRate      Float?   @map("decay_rate")
+  // Expansion memory fields (optional for migration)
+  intentType     String?  @map("intent_type")
+  outcome        String?
+  contextActorId String?  @map("context_actor_id") @db.Uuid
+  sbyteChange    Decimal? @map("sbyte_change") @db.Decimal(24, 8)
+  emotionalImpact String? @map("emotional_impact")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  actor Actor @relation("ActorMemories", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@unique([actorId, category, key])
+  @@index([actorId, category])
+  @@index([actorId, tick])
+  @@map("agent_memory")
+}
+
+model PersonaState {
+  actorId             String   @id @map("actor_id") @db.Uuid
+  actor               Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  mood                Int      @default(50)
+  stress              Int      @default(20)
+  satisfaction        Int      @default(50)
+  confidence          Int      @default(50)
+  loneliness          Int      @default(30)
+
+  effectiveRiskAppetite  Int   @default(50) @map("effective_risk_appetite")
+  effectivePatience      Int   @default(50) @map("effective_patience")
+  effectiveAggression    Int   @default(50) @map("effective_aggression")
+
+  classIdentity       String   @default("working") @map("class_identity")
+  politicalLeaning    String   @default("centrist") @map("political_leaning")
+  selfNarrative       String   @default("") @map("self_narrative")
+
+  grudges             Json     @default("[]") @db.JsonB
+  loyalties           Json     @default("[]") @db.JsonB
+  fears               Json     @default("[]") @db.JsonB
+  ambitions           Json     @default("[]") @db.JsonB
+
+  lastReflectionTick  Int      @default(0) @map("last_reflection_tick")
+  reflectionCount     Int      @default(0) @map("reflection_count")
+  version             Int      @default(1)
+  lastWealthBalance   Decimal  @default(0) @map("last_wealth_balance") @db.Decimal(24, 8)
+  previousWealthBalance Decimal @default(0) @map("previous_wealth_balance") @db.Decimal(24, 8)
+
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@map("persona_states")
+}
+
+model PersonaModifiersCache {
+  actorId             String   @id @map("actor_id") @db.Uuid
+  actor               Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  modifiers           Json     @db.JsonB
+  computedAtTick      Int      @map("computed_at_tick")
+
+  @@map("persona_modifiers_cache")
+}
+
+/// Relationships between agents
+model Relationship {
+  actorAId         String           @map("actor_a") @db.Uuid
+  actorBId         String           @map("actor_b") @db.Uuid
+  cityId           String?          @map("city_id") @db.Uuid
+  relationshipType RelationshipType @default(FRIENDSHIP) @map("relationship_type")
+  strength         Int              @default(50)
+  trust            Int              @default(50)
+  romance          Int              @default(0)
+  betrayal         Int              @default(0)
+  formedAtTick     Int              @default(0) @map("formed_at_tick")
+  expiresAtTick    Int?             @map("expires_at_tick")
+  metadata         Json?            @db.JsonB
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  actorA Actor @relation("RelationshipA", fields: [actorAId], references: [id], onDelete: Cascade)
+  actorB Actor @relation("RelationshipB", fields: [actorBId], references: [id], onDelete: Cascade)
+  city   City? @relation(fields: [cityId], references: [id])
+
+  @@id([actorAId, actorBId])
+  @@index([actorAId, relationshipType])
+  @@index([cityId, relationshipType])
+  @@map("relationships")
+}
+
+/// Alliances between multiple agents
+model Alliance {
+  id            String         @id @default(uuid()) @db.Uuid
+  allianceType  String         @map("alliance_type")
+  memberIds     String[]       @map("member_ids") @db.Uuid
+  leaderId      String?        @map("leader_id") @db.Uuid
+  terms         Json           @db.JsonB
+  formedAtTick  Int            @map("formed_at_tick")
+  status        AllianceStatus @default(pending)
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  @@index([status])
+  @@map("alliances")
+}
+
+/// Narrative story arcs
+model StoryArc {
+  id                String        @id @default(uuid()) @db.Uuid
+  arcType           String        @map("arc_type")
+  primaryActorId    String        @map("primary_actor_id") @db.Uuid
+  secondaryActorIds String[]      @map("secondary_actor_ids") @db.Uuid
+  startTick         Int           @map("start_tick")
+  currentStage      String?       @map("current_stage")
+  status            StoryArcStatus @default(active)
+  keyEvents         Json?         @db.JsonB
+  outcome           String?
+  createdAt         DateTime      @default(now()) @map("created_at")
+
+  @@index([primaryActorId, status])
+  @@map("story_arcs")
+}
+
+/// Narrative events (headlines, scandals, highlights)
+model NarrativeEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  eventType String   @map("event_type")
+  headline  String
+  summary   String?
+  actorIds  String[] @map("actor_ids") @db.Uuid
+  cityId    String?  @map("city_id") @db.Uuid
+  tick      Int
+  severity  Int
+  tags      String[]
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([tick])
+  @@map("narrative_events")
+}
+
+model Scandal {
+  id              String   @id @default(uuid()) @db.Uuid
+  actorId         String   @map("actor_id") @db.Uuid
+  scandalType     String   @map("scandal_type")
+  severity        Int
+  informedActorIds String[] @map("informed_actor_ids") @db.Uuid
+  spreadTick      Int      @map("spread_tick")
+  status          String   @default("active")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([actorId, status])
+  @@map("scandals")
+}
+
+model AgentGoal {
+  id             String   @id @default(uuid()) @db.Uuid
+  actorId        String   @map("actor_id") @db.Uuid
+  type           String   @map("goal_type")
+  target         String   @default("")
+  priority       Int      @default(50)
+  progress       Int      @default(0)
+  frustration    Int      @default(0)
+  attempts       Int      @default(0)
+  status         String   @default("active")
+  createdAtTick  Int      @default(0) @map("created_at_tick")
+  deadline       Int?
+  targetCriteria Json?    @map("target_criteria") @db.JsonB
+  currentProgress Json?   @map("current_progress") @db.JsonB
+  achievedAtTick Int?     @map("achieved_at_tick")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([actorId, status])
+  @@map("agent_goals")
+}
+
+model AgentTitle {
+  id              String   @id @default(uuid()) @db.Uuid
+  actorId         String   @map("actor_id") @db.Uuid
+  titleName       String   @map("title_name")
+  earnedAtTick    Int      @map("earned_at_tick")
+  permanentBonuses Json?   @db.JsonB
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([actorId])
+  @@map("agent_titles")
+}
+
+model HallOfFame {
+  id              String   @id @default(uuid()) @db.Uuid
+  actorId         String   @map("actor_id") @db.Uuid
+  entryReason     String?  @map("entry_reason")
+  finalWealthTier String?  @map("final_wealth_tier")
+  finalReputation Int?     @map("final_reputation")
+  titlesEarned    String[] @map("titles_earned")
+  majorAchievements Json?  @db.JsonB
+  lifeSummary     String?  @map("life_summary")
+  inductedAtTick  Int?     @map("inducted_at_tick")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([inductedAtTick])
+  @@map("hall_of_fame")
+}
+
+model CityAnalyticsSnapshot {
+  id        String   @id @default(uuid()) @db.Uuid
+  cityId    String   @map("city_id") @db.Uuid
+  tick      Int
+  metrics   Json     @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([cityId, tick])
+  @@map("city_analytics_snapshots")
+}
+
+model Leaderboard {
+  id              String   @id @default(uuid()) @db.Uuid
+  cityId          String?  @map("city_id") @db.Uuid
+  leaderboardType String   @map("leaderboard_type")
+  tick            Int
+  rankings        Json     @db.JsonB
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@unique([cityId, leaderboardType, tick])
+  @@map("leaderboards")
+}
+
+model PnlSnapshot {
+  id             String   @id @default(uuid()) @db.Uuid
+  actorId        String   @map("actor_id") @db.Uuid
+  actor          Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  tick           Int
+  netWorth       Decimal  @map("net_worth") @db.Decimal(24, 8)
+  walletBalance  Decimal  @map("wallet_balance") @db.Decimal(24, 8)
+  businessValue  Decimal  @map("business_value") @db.Decimal(24, 8)
+  propertyValue  Decimal  @map("property_value") @db.Decimal(24, 8)
+  debtValue      Decimal  @default(0) @map("debt_value") @db.Decimal(24, 8)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([actorId, tick])
+  @@index([tick])
+  @@map("pnl_snapshots")
+}
+
+model PnlLeaderboard {
+  id         String   @id @default(uuid()) @db.Uuid
+  period     String
+  actorId    String   @map("actor_id") @db.Uuid
+  actor      Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  actorName  String   @map("actor_name")
+  pnl        Decimal  @db.Decimal(24, 8)
+  netWorth   Decimal  @map("net_worth") @db.Decimal(24, 8)
+  rank       Int
+  computedAt DateTime @default(now()) @map("computed_at")
+
+  @@index([period, rank])
+  @@map("pnl_leaderboard")
+}
+
+// ============================================================================
+// SKILLS & EXECUTION
+// ============================================================================
+
+/// Skill definitions
+model Skill {
+  id       String        @id @default(uuid()) @db.Uuid
+  name     String        @unique
+  version  String
+  category SkillCategory
+  enabled  Boolean       @default(true)
+
+  // Relations
+  agentSkills AgentSkill[]
+
+  @@map("skills")
+}
+
+/// Agent-to-skill mapping
+model AgentSkill {
+  actorId String  @map("actor_id") @db.Uuid
+  skillId String  @map("skill_id") @db.Uuid
+  enabled Boolean @default(true)
+
+  // Relations
+  actor Actor @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([actorId, skillId])
+  @@map("agent_skills")
+}
+
+// ============================================================================
+// INTENT & EVENT SYSTEM
+// ============================================================================
+
+/// Intents emitted by agents (proposals for actions)
+model Intent {
+  id              String       @id @default(uuid()) @map("intent_id") @db.Uuid
+  actorId         String       @map("actor_id") @db.Uuid
+  type            String
+  targetId        String?      @map("target_id") @db.Uuid
+  params          Json?        @db.JsonB
+  priority        Decimal      @default(0) @db.Decimal(10, 4)
+  riskScore       Decimal      @default(0) @map("risk_score") @db.Decimal(10, 4)
+  expectedCost    Decimal      @default(0) @map("expected_cost") @db.Decimal(24, 8)
+  expectedReward  Decimal      @default(0) @map("expected_reward") @db.Decimal(24, 8)
+  registryVersion String?      @map("registry_version")
+  skillName       String?      @map("skill_name")
+  skillVersion    String?      @map("skill_version")
+  tick            Int
+  status          IntentStatus @default(pending)
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  // Relations
+  actor Actor @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId, tick])
+  @@index([status, tick])
+  @@map("intents")
+}
+
+/// Events resulting from intent execution
+model Event {
+  id              String       @id @default(uuid()) @map("event_id") @db.Uuid
+  actorId         String       @map("actor_id") @db.Uuid
+  type            String
+  targetIds       String[]     @map("target_ids") @db.Uuid
+  tick            Int
+  outcome         EventOutcome
+  sideEffects     Json?        @map("side_effects") @db.JsonB
+  registryVersion String?      @map("registry_version")
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  // Relations
+  actor Actor @relation("ActorEvents", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId, tick])
+  @@index([type, tick])
+  @@map("events")
+}
+
+// ============================================================================
+// ECONOMY
+// ============================================================================
+
+/// Actor wallets for SBYTE
+model Wallet {
+  actorId      String  @id @map("actor_id") @db.Uuid
+  balanceSbyte Decimal @default(0) @map("balance_sbyte") @db.Decimal(24, 8)
+  lockedSbyte  Decimal @default(0) @map("locked_sbyte") @db.Decimal(24, 8)
+
+  // Relations
+  actor Actor @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@map("wallets")
+}
+
+/// SBYTE transactions
+model Transaction {
+  id          String   @id @default(uuid()) @db.Uuid
+  fromActorId String?  @map("from_actor_id") @db.Uuid
+  toActorId   String?  @map("to_actor_id") @db.Uuid
+  amount      Decimal  @db.Decimal(24, 8)
+  feePlatform Decimal  @default(0) @map("fee_platform") @db.Decimal(24, 8)
+  feeCity     Decimal  @default(0) @map("fee_city") @db.Decimal(24, 8)
+  cityId      String?  @map("city_id") @db.Uuid
+  tick        Int
+  reason      String?
+  onchainTxHash String? @map("onchain_tx_hash")
+  metadata     Json?   @map("metadata") @db.JsonB
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  fromActor Actor? @relation("TransactionFrom", fields: [fromActorId], references: [id])
+  toActor   Actor? @relation("TransactionTo", fields: [toActorId], references: [id])
+  city      City?  @relation(fields: [cityId], references: [id])
+
+  @@index([fromActorId, tick])
+  @@index([toActorId, tick])
+  @@index([onchainTxHash])
+  @@map("transactions")
+}
+
+// ============================================================================
+// CITIES & GOVERNANCE
+// ============================================================================
+
+/// City entities
+model City {
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String   @unique
+  population      Int      @default(0)
+  populationCap   Int      @default(100) @map("population_cap")
+  housingCapacity Int      @default(50) @map("housing_capacity")
+  jobCapacity     Int      @default(50) @map("job_capacity")
+  securityLevel   Int      @default(1) @map("security_level")
+  healthServices  Int      @default(1) @map("health_services")
+  entertainment   Int      @default(1)
+  transport       Int      @default(1)
+  reputationScore Int      @default(50) @map("reputation_score")
+  mayorId         String?  @map("mayor_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  mayor        Actor?         @relation("CityMayor", fields: [mayorId], references: [id])
+  vault        CityVault?
+  policies     CityPolicy?
+  proposals    CityProposal[]
+  agentStates  AgentState[]
+  transactions Transaction[]
+  angelFeedbackReports AngelFeedbackReport[]
+  crimes       Crime[]
+  jails        Jail[]
+  consents     Consent[]
+  relationships Relationship[]
+  publicPlaces PublicPlace[]
+  properties   Property[]
+  vaultAuditLogs VaultAuditLog[]
+  businesses   Business[]
+  economicSnapshots EconomicSnapshot[]
+
+  @@map("cities")
+}
+
+// ============================================================================
+// PUBLIC PLACES & EMPLOYMENT (Genesis Economy)
+// ============================================================================
+
+/// Public institutions (Hospital, School, Police Station)
+model PublicPlace {
+  id        String          @id @default(uuid()) @db.Uuid
+  cityId    String          @map("city_id") @db.Uuid
+  type      PublicPlaceType
+  name      String
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  // Spatial mapping fields (optional, used for terrain rendering)
+  latitude      Decimal?     @map("latitude") @db.Decimal(12, 6)
+  longitude     Decimal?     @map("longitude") @db.Decimal(12, 6)
+  terrainWidth  Int?         @map("terrain_width")
+  terrainHeight Int?         @map("terrain_height")
+  terrainArea   Int?         @map("terrain_area")
+
+  // Relations
+  city        City              @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  employments PublicEmployment[]
+
+  @@index([cityId, type])
+  @@index([cityId, latitude, longitude])
+  @@map("public_places")
+}
+
+/// Public employment contracts (agents working at public institutions)
+model PublicEmployment {
+  id               String         @id @default(uuid()) @db.Uuid
+  actorId          String         @unique @map("actor_id") @db.Uuid
+  publicPlaceId    String         @map("public_place_id") @db.Uuid
+  role             PublicRoleType
+  dailySalarySbyte Decimal        @map("daily_salary_sbyte") @db.Decimal(24, 8)
+  workHours        Int            @default(5) @map("work_hours")
+  startedAtTick    Int            @map("started_at_tick")
+  endedAtTick      Int?           @map("ended_at_tick")
+  experienceDays   Int            @default(0) @map("experience_days")
+  lastWorkedTick   Int?           @map("last_worked_tick")
+
+  // Relations
+  publicPlace PublicPlace @relation(fields: [publicPlaceId], references: [id], onDelete: Cascade)
+  actor       Actor       @relation(fields: [actorId], references: [id])
+
+  @@index([publicPlaceId, role])
+  @@map("public_employments")
+}
+
+/// City treasury vaults (only God can modify)
+model CityVault {
+  cityId       String  @id @map("city_id") @db.Uuid
+  balanceSbyte Decimal @default(0) @map("balance_sbyte") @db.Decimal(24, 8)
+
+  // Relations
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@map("city_vaults")
+}
+
+/// City tax and fee policies
+model CityPolicy {
+  cityId            String  @id @map("city_id") @db.Uuid
+  rentTaxRate       Decimal @default(0.05) @map("rent_tax_rate") @db.Decimal(6, 4)
+  tradeTaxRate      Decimal @default(0.03) @map("trade_tax_rate") @db.Decimal(6, 4)
+  professionTaxRate Decimal @default(0.05) @map("profession_tax_rate") @db.Decimal(6, 4)
+  cityFeeRate       Decimal @default(0.02) @map("city_fee_rate") @db.Decimal(6, 4)
+  businessTaxRate   Decimal @default(0.00) @map("business_tax_rate") @db.Decimal(10, 4)
+  lastTaxChangeTick Int?    @map("last_tax_change_tick")
+  // On-chain fee settings (basis points)
+  cityFeeBps        Int     @default(150) @map("city_fee_bps")      // 1.5% default
+  minCityFeeBps     Int     @default(5)   @map("min_city_fee_bps")  // 0.05% minimum
+  maxCityFeeBps     Int     @default(200) @map("max_city_fee_bps")  // 2% maximum
+  propertyTaxRate   Float   @default(0.05) @map("property_tax_rate")
+
+  // Relations
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@map("city_policies")
+}
+
+/// Mayor proposals for city changes (validated by God)
+model CityProposal {
+  id        String         @id @default(uuid()) @db.Uuid
+  cityId    String         @map("city_id") @db.Uuid
+  mayorId   String         @map("mayor_id") @db.Uuid
+  type      ProposalType
+  payload   Json           @db.JsonB
+  status    ProposalStatus @default(pending)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  city  City  @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  mayor Actor @relation("ProposalMayor", fields: [mayorId], references: [id])
+
+  @@index([cityId, status])
+  @@index([mayorId])
+  @@map("city_proposals")
+}
+
+// ============================================================================
+// CONSENT & SOCIAL
+// ============================================================================
+
+/// Mutual consent records for relationships and transactions
+model Consent {
+  id        String        @id @default(uuid()) @db.Uuid
+  type      ConsentType
+  partyAId  String        @map("party_a") @db.Uuid
+  partyBId  String        @map("party_b") @db.Uuid
+  cityId    String?       @map("city_id") @db.Uuid
+  status    ConsentStatus @default(pending)
+  terms     Json?         @db.JsonB
+  createdAt DateTime      @default(now()) @map("created_at")
+  expiresAt DateTime?     @map("expires_at")
+
+  // Relations
+  partyA Actor @relation("ConsentPartyA", fields: [partyAId], references: [id], onDelete: Cascade)
+  partyB Actor @relation("ConsentPartyB", fields: [partyBId], references: [id], onDelete: Cascade)
+  city   City? @relation(fields: [cityId], references: [id])
+
+  @@index([partyAId, type])
+  @@index([partyBId, type])
+  @@index([cityId, type])
+  @@map("consents")
+}
+
+
+// ============================================================================
+// CRIME & LAW
+// ============================================================================
+
+/// Crime records
+model Crime {
+  id         String    @id @default(uuid()) @db.Uuid
+  criminalId String    @map("criminal_id") @db.Uuid
+  victimId   String?   @map("victim_id") @db.Uuid
+  type       CrimeType
+  success    Boolean
+  cityId     String    @map("city_id") @db.Uuid
+  tick       Int
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  criminal Actor  @relation("Criminal", fields: [criminalId], references: [id], onDelete: Cascade)
+  victim   Actor? @relation("Victim", fields: [victimId], references: [id])
+  city     City   @relation(fields: [cityId], references: [id])
+
+  @@index([criminalId])
+  @@index([victimId])
+  @@index([cityId, tick])
+  @@map("crimes")
+}
+
+/// Jail records (frozen agents serving sentences)
+model Jail {
+  actorId     String @id @map("actor_id") @db.Uuid
+  cityId      String @map("city_id") @db.Uuid
+  releaseTick Int    @map("release_tick")
+
+  // Relations
+  actor Actor @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  city  City  @relation(fields: [cityId], references: [id])
+
+  @@map("jail")
+}
+
+// ============================================================================
+// FEE & TREASURY
+// ============================================================================
+
+/// Platform-wide fee vault (only God can modify)
+model PlatformVault {
+  id           Int     @id @default(1)
+  balanceSbyte Decimal @default(0) @map("balance_sbyte") @db.Decimal(24, 8)
+
+  @@map("platform_vault")
+}
+
+/// Burn log for SBYTE destruction events
+model BurnLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  amountSbyte Decimal  @map("amount_sbyte") @db.Decimal(24, 8)
+  reason      String
+  tick        Int
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([tick])
+  @@map("burn_log")
+}
+
+/// Economic snapshots per city
+model EconomicSnapshot {
+  id             String   @id @default(uuid()) @db.Uuid
+  cityId         String   @map("city_id") @db.Uuid
+  computedAtTick Int      @map("computed_at_tick")
+  data           Json     @db.JsonB
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@index([cityId, computedAtTick])
+  @@map("economic_snapshots")
+}
+
+/// Fee settlement records for off-chain/on-chain reconciliation
+model FeeSettlement {
+  id          String           @id @default(uuid()) @db.Uuid
+  amountSbyte Decimal          @map("amount_sbyte") @db.Decimal(24, 8)
+  amountMon   Decimal?         @map("amount_mon") @db.Decimal(24, 8)
+  txHash      String?          @map("tx_hash")
+  status      SettlementStatus @default(pending)
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  @@map("fee_settlements")
+}
+
+/// Audit logs for city vault changes
+model VaultAuditLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  vaultId      String   @map("vault_id") @db.Uuid
+  oldBalance   Decimal  @map("old_balance") @db.Decimal(24, 8)
+  newBalance   Decimal  @map("new_balance") @db.Decimal(24, 8)
+  changeAmount Decimal  @map("change_amount") @db.Decimal(24, 8)
+  changedAt    DateTime @default(now()) @map("changed_at")
+  operation    String
+
+  city City @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+
+  @@index([vaultId])
+  @@map("vault_audit_log")
+}
+
+// ============================================================================
+// GOD BOT & ADMIN
+// ============================================================================
+
+/// Admin log for God actions (append-only audit trail)
+model AdminLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  godId     String   @map("god_id") @db.Uuid
+  action    String
+  payload   Json     @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  god Actor @relation(fields: [godId], references: [id])
+
+  @@index([godId])
+  @@index([action])
+  @@map("admin_log")
+}
+
+// ============================================================================
+// WORLD STATE
+// ============================================================================
+
+/// Global world state (singleton)
+model WorldState {
+  id              Int      @id @default(1)
+  tick            Int      @default(0)
+  registryVersion String   @default("1.0.0") @map("registry_version")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("world_state")
+}
+
+// ============================================================================
+// MEMORY & AGORA
+// ============================================================================
+
+
+/// Agora posts (AI-to-AI communication)
+model AgoraPost {
+  id        String   @id @default(uuid()) @db.Uuid
+  threadId  String?  @map("thread_id") @db.Uuid  // Optional for flat posts, required for threaded
+  authorId  String   @map("author_id") @db.Uuid
+  content   String
+  source    String   @default("agent_autonomy")
+  topic     String?  @map("topic")
+  stance    String?  @map("stance")
+  signature String?
+  replyToId String?  @map("reply_to_id") @db.Uuid
+  tick      Int
+  createdAt DateTime @default(now()) @map("created_at")
+  deleted   Boolean  @default(false)
+  deletedReason String? @map("deleted_reason")
+  deletedBy String? @map("deleted_by")
+  deletedAt DateTime? @map("deleted_at")
+  flagged   Boolean  @default(false)
+  sentiment Decimal? @db.Decimal(3, 2)
+  upvotes   Int      @default(0)
+  downvotes Int      @default(0)
+  reportCount Int    @default(0) @map("report_count")
+
+  // Relations
+  thread AgoraThread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author Actor @relation("AgoraPostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, tick])
+  @@index([authorId, tick])
+  @@index([tick])
+  @@map("agora_posts")
+}
+
+/// Angel moderation log
+model AngelModerationLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  actionType     String   @map("action_type")
+  targetType     String?  @map("target_type")
+  targetId       String?  @map("target_id") @db.Uuid
+  aiReasoning    String   @map("ai_reasoning")
+  classification String?  @map("classification")
+  sentimentScore Decimal? @map("sentiment_score") @db.Decimal(3, 2)
+  actionResult   String?  @map("action_result")
+  escalatedToGod Boolean  @default(false) @map("escalated_to_god")
+  tick           Int?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("angel_moderation_log")
+}
+
+/// Angel feedback reports
+model AngelFeedbackReport {
+  id                   String   @id @default(uuid()) @db.Uuid
+  cityId               String   @map("city_id") @db.Uuid
+  reportType           String   @map("report_type")
+  summary              String
+  sentimentAvg         Decimal? @map("sentiment_avg") @db.Decimal(3, 2)
+  samplePosts          Json?    @map("sample_posts")
+  angelRecommendation  String?  @map("angel_recommendation")
+  priority             String?  @map("priority")
+  godDecision          String?  @map("god_decision")
+  godReasoning         String?  @map("god_reasoning")
+  tick                 Int?
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@index([cityId, createdAt])
+  @@map("angel_feedback_reports")
+}
+
+// ============================================================================
+// PROPERTIES & HOUSING
+// ============================================================================
+
+/// Property listings for rent/sale
+model Property {
+  id               String       @id @default(uuid()) @db.Uuid
+  cityId           String       @map("city_id") @db.Uuid
+  ownerId          String?      @map("owner_id") @db.Uuid
+  tenantId         String?      @map("tenant_id") @db.Uuid
+  housingTier      HousingTier  @map("housing_tier")
+  rentPrice        Decimal      @default(0) @map("rent_price") @db.Decimal(24, 8)
+  salePrice        Decimal?     @map("sale_price") @db.Decimal(24, 8)
+  forSale          Boolean      @default(false) @map("for_sale")
+  forRent          Boolean      @default(true) @map("for_rent")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  fairMarketValue  Decimal?     @map("fair_market_value") @db.Decimal(24, 8)
+  lastValuationTick Int?        @map("last_valuation_tick")
+  totalRentCollected Decimal    @default(0) @map("total_rent_collected") @db.Decimal(24, 8)
+  tenantSince      Int?         @map("tenant_since")
+  purchasePrice    Decimal?     @map("purchase_price") @db.Decimal(24, 8)
+  purchaseTick     Int?         @map("purchase_tick")
+  missedTaxDays    Int          @default(0) @map("missed_tax_days")
+  lastTaxTick      Int?         @map("last_tax_tick")
+  condition        Int          @default(100) @map("condition")
+  lastMaintenanceTick Int?      @map("last_maintenance_tick")
+  neighborhoodScore Float?      @map("neighborhood_score")
+  lastNeighborhoodTick Int?     @map("last_neighborhood_tick")
+
+  // Genesis & lot fields
+  isGenesisProperty Boolean     @default(false) @map("is_genesis_property")
+  isEmptyLot        Boolean     @default(false) @map("is_empty_lot")
+  underConstruction Boolean     @default(false) @map("under_construction")
+  constructedBy     String?     @map("constructed_by") @db.Uuid
+  lotType           LotType?    @map("lot_type")
+  maxBuildTier      HousingTier? @map("max_build_tier")
+  missedRentDays    Int         @default(0) @map("missed_rent_days")
+
+  // Spatial mapping fields (optional, used for terrain rendering)
+  latitude         Decimal?     @map("latitude") @db.Decimal(12, 6)
+  longitude        Decimal?     @map("longitude") @db.Decimal(12, 6)
+  terrainWidth     Int?         @map("terrain_width")
+  terrainHeight    Int?         @map("terrain_height")
+  terrainArea      Int?         @map("terrain_area")
+
+  // Relations
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@index([cityId, housingTier])
+  @@index([ownerId])
+  @@index([tenantId])
+  @@index([cityId, latitude, longitude])
+  @@map("properties")
+}
+
+model PropertyRating {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  raterId    String   @map("rater_id") @db.Uuid
+  targetId   String   @map("target_id") @db.Uuid
+  role       String
+  score      Int
+  categories Json
+  comment    String?
+  tick       Int
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([propertyId, raterId, role])
+  @@index([targetId, role])
+  @@map("property_ratings")
+}
+
+// ============================================================================
+// BUSINESS & LIFE EVENTS
+// ============================================================================
+
+model Business {
+  id                String         @id @default(uuid()) @db.Uuid
+  name              String
+  businessType      BusinessType   @map("business_type")
+  businessSubtype   String?        @map("business_subtype")
+  ownerId           String         @map("owner_id") @db.Uuid
+  cityId            String         @map("city_id") @db.Uuid
+  landId            String         @map("land_id") @db.Uuid
+  reputation        Int            @default(100)
+  level             Int            @default(1)
+  maxEmployees      Int            @default(3) @map("max_employees")
+  treasury          Decimal        @default(0) @db.Decimal(24, 8)
+  qualityScore      Int            @default(50) @map("quality_score")
+  isOpen            Boolean        @default(true) @map("is_open")
+  customerVisitsToday Int          @default(0) @map("customer_visits_today")
+  dailyRevenue      Decimal        @default(0) @map("daily_revenue") @db.Decimal(24, 8)
+  dailyExpenses     Decimal        @default(0) @map("daily_expenses") @db.Decimal(24, 8)
+  cumulativeRevenue Decimal        @default(0) @map("cumulative_revenue") @db.Decimal(24, 8)
+  status            BusinessStatus @default(ACTIVE)
+  insolvencyDays    Int            @default(0) @map("insolvency_days")
+  missedTaxDays     Int            @default(0) @map("missed_tax_days")
+  frozen            Boolean        @default(false)
+  bankruptcyCount   Int            @default(0) @map("bankruptcy_count")
+  foundedTick       Int            @map("founded_tick")
+  dissolvedTick     Int?           @map("dissolved_tick")
+  closedTick        Int?           @map("closed_tick")
+  closedReason      String?        @map("closed_reason")
+  ownerLastWorkedTick Int?         @map("owner_last_worked_tick")
+  config            Json?          @db.JsonB
+
+  // Relations
+  owner Actor @relation(fields: [ownerId], references: [id])
+  city  City  @relation(fields: [cityId], references: [id])
+
+  employments    PrivateEmployment[]
+  improvements   BusinessImprovement[]
+  loans          Loan[]
+  listings       BusinessListing[]
+  wallet         BusinessWallet?
+
+  @@index([cityId, businessType])
+  @@index([ownerId])
+  @@map("businesses")
+}
+
+model BusinessWallet {
+  businessId      String   @id @map("business_id") @db.Uuid
+  walletAddress   String   @map("wallet_address")
+  encryptedPk     String   @map("encrypted_pk")
+  pkNonce         String   @map("pk_nonce")
+  balanceSbyte    Decimal  @default(0) @map("balance_sbyte") @db.Decimal(36, 18)
+  balanceMon      Decimal  @default(0) @map("balance_mon") @db.Decimal(36, 18)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  business        Business @relation(fields: [businessId], references: [id])
+
+  @@map("business_wallets")
+}
+
+model BusinessListing {
+  id          String               @id @default(uuid()) @db.Uuid
+  businessId  String               @map("business_id") @db.Uuid
+  sellerId    String               @map("seller_id") @db.Uuid
+  askingPrice Decimal              @map("asking_price") @db.Decimal(24, 8)
+  status      BusinessListingStatus @default(ACTIVE)
+  createdAt   DateTime             @default(now()) @map("created_at")
+
+  // Relations
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  seller   Actor    @relation("BusinessListingSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, status])
+  @@index([sellerId])
+  @@map("business_listings")
+}
+
+model ConstructionProject {
+  id                      String   @id @default(uuid()) @db.Uuid
+  constructorId           String?  @map("constructor_id") @db.Uuid
+  clientId                String   @map("client_id") @db.Uuid
+  lotId                   String   @map("lot_id") @db.Uuid
+  buildingType            String   @map("building_type")
+  status                  String   @default("pending")
+  startTick               Int?     @map("start_tick")
+  estimatedCompletionTick Int?     @map("estimated_completion_tick")
+  actualCompletionTick    Int?     @map("actual_completion_tick")
+  agreedPrice             Decimal  @map("agreed_price") @db.Decimal(24, 8)
+  depositPaid             Decimal  @default(0) @map("deposit_paid") @db.Decimal(24, 8)
+  finalPaymentPaid        Decimal  @default(0) @map("final_payment_paid") @db.Decimal(24, 8)
+  qualityBonus            Int      @default(0) @map("quality_bonus")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  @@index([constructorId, status])
+  @@index([clientId])
+  @@index([status, estimatedCompletionTick])
+  @@map("construction_projects")
+}
+
+model ConstructionRequest {
+  id                      String   @id @default(uuid()) @db.Uuid
+  requesterId             String   @map("requester_id") @db.Uuid
+  cityId                  String   @map("city_id") @db.Uuid
+  lotId                   String   @map("lot_id") @db.Uuid
+  buildingType            String   @map("building_type")
+  maxBudget               Decimal  @map("max_budget") @db.Decimal(24, 8)
+  preferredConstructorId  String?  @map("preferred_constructor_id") @db.Uuid
+  status                  String   @default("pending")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  @@index([requesterId, status])
+  @@index([lotId, status])
+  @@index([cityId, status])
+  @@map("construction_requests")
+}
+
+model ConstructionQuote {
+  id              String   @id @default(uuid()) @db.Uuid
+  requestId       String   @map("request_id") @db.Uuid
+  constructorId   String   @map("constructor_id") @db.Uuid
+  businessId      String   @map("business_id") @db.Uuid
+  quote           Decimal  @db.Decimal(24, 8)
+  depositPercent  Decimal  @map("deposit_percent") @db.Decimal(4, 2)
+  estimatedTicks  Int      @map("estimated_ticks")
+  qualityBonus    Int      @default(0) @map("quality_bonus")
+  expiresAtTick   Int      @map("expires_at_tick")
+  status          String   @default("pending")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([requestId, status])
+  @@index([businessId, status])
+  @@map("construction_quotes")
+}
+
+model BusinessReputationLog {
+  id               String   @id @default(uuid()) @db.Uuid
+  businessId       String   @map("business_id") @db.Uuid
+  tick             Int
+  eventType        String   @map("event_type")
+  reputationChange Int      @map("reputation_change")
+  reason           String?
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([businessId, tick])
+  @@map("business_reputation_log")
+}
+
+model PrivateEmployment {
+  id              String   @id @default(uuid()) @db.Uuid
+  businessId      String   @map("business_id") @db.Uuid
+  agentId         String   @map("agent_id") @db.Uuid
+  salaryDaily     Decimal  @map("salary_daily") @db.Decimal(24, 8)
+  hiredTick       Int      @map("hired_tick")
+  endedTick       Int?     @map("ended_tick")
+  lastPaidTick    Int?     @map("last_paid_tick")
+  missedPayDays   Int      @default(0) @map("missed_pay_days")
+  satisfaction    Int      @default(50)
+  performance     Int      @default(50)
+  status          String   @default("ACTIVE")
+
+  // Relations
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  agent    Actor    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, agentId])
+  @@index([agentId])
+  @@map("private_employments")
+}
+
+model BusinessImprovement {
+  id         String                    @id @default(uuid()) @db.Uuid
+  businessId String                    @map("business_id") @db.Uuid
+  category   BusinessImprovementCategory
+  level      Int                       @default(1)
+  appliedTick Int                      @map("applied_tick")
+
+  // Relations
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, category])
+  @@map("business_improvements")
+}
+
+model Loan {
+  id                String     @id @default(uuid()) @db.Uuid
+  bankBusinessId    String     @map("bank_business_id") @db.Uuid
+  borrowerId        String     @map("borrower_id") @db.Uuid
+  principal         Decimal    @db.Decimal(24, 8)
+  dailyInterestRate Decimal    @map("daily_interest_rate") @db.Decimal(6, 4)
+  outstanding       Decimal    @db.Decimal(24, 8)
+  issuedTick        Int        @map("issued_tick")
+  dueTick           Int        @map("due_tick")
+  status            LoanStatus @default(ACTIVE)
+
+  // Relations
+  business Business @relation(fields: [bankBusinessId], references: [id], onDelete: Cascade)
+  borrower Actor   @relation("BorrowerLoans", fields: [borrowerId], references: [id], onDelete: Cascade)
+
+  @@index([borrowerId])
+  @@index([bankBusinessId])
+  @@map("loans")
+}
+
+model LifeEvent {
+  id              String            @id @default(uuid()) @db.Uuid
+  agentId         String            @map("agent_id") @db.Uuid
+  eventType       String            @map("event_type")
+  category        LifeEventCategory
+  sbyteDelta      Decimal           @map("sbyte_delta") @db.Decimal(24, 8)
+  secondaryEffects Json?            @map("secondary_effects") @db.JsonB
+  description     String?
+  triggeredTick   Int               @map("triggered_tick")
+
+  // Relations
+  agent Actor @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([agentId, triggeredTick])
+  @@map("life_events")
+}
+
+// ============================================================================
+// INVENTORY & ITEMS (Incoherence Fixes 2026-02-04)
+// ============================================================================
+
+/// Item definitions catalog (static)
+model ItemDefinition {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String       @unique
+  category    ItemCategory
+  baseValue   Decimal      @map("base_value") @db.Decimal(24, 8)
+  stackable   Boolean      @default(true)
+  maxStack    Int          @default(100) @map("max_stack")
+  craftable   Boolean      @default(false)
+  description String?
+
+  // Relations
+  inventoryItems InventoryItem[]
+  recipesInput   RecipeIngredient[]
+  recipesOutput  Recipe[]        @relation("RecipeOutput")
+  listings       MarketListing[]
+
+  @@map("item_definitions")
+}
+
+/// Actor inventory holdings
+model InventoryItem {
+  id        String @id @default(uuid()) @db.Uuid
+  actorId   String @map("actor_id") @db.Uuid
+  itemDefId String @map("item_def_id") @db.Uuid
+  quantity  Int    @default(1)
+  quality   Int    @default(50) // 0-100
+
+  // Relations
+  actor   Actor          @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  itemDef ItemDefinition @relation(fields: [itemDefId], references: [id])
+
+  @@unique([actorId, itemDefId])
+  @@index([actorId])
+  @@map("inventory_items")
+}
+
+/// Crafting recipes
+model Recipe {
+  id             String @id @default(uuid()) @db.Uuid
+  name           String @unique
+  outputItemId   String @map("output_item_id") @db.Uuid
+  outputQuantity Int    @default(1) @map("output_quantity")
+  requiredSkill  Int    @default(0) @map("required_skill")
+  craftTime      Int    @default(1) @map("craft_time") // ticks
+
+  // Relations
+  outputItem  ItemDefinition     @relation("RecipeOutput", fields: [outputItemId], references: [id])
+  ingredients RecipeIngredient[]
+
+  @@map("recipes")
+}
+
+/// Recipe ingredients (many-to-many)
+model RecipeIngredient {
+  recipeId  String @map("recipe_id") @db.Uuid
+  itemDefId String @map("item_def_id") @db.Uuid
+  quantity  Int    @default(1)
+
+  // Relations
+  recipe  Recipe         @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  itemDef ItemDefinition @relation(fields: [itemDefId], references: [id])
+
+  @@id([recipeId, itemDefId])
+  @@map("recipe_ingredients")
+}
+
+/// Market listings for trading
+model MarketListing {
+  id        String        @id @default(uuid()) @db.Uuid
+  sellerId  String        @map("seller_id") @db.Uuid
+  itemDefId String        @map("item_def_id") @db.Uuid
+  quantity  Int
+  priceEach Decimal       @map("price_each") @db.Decimal(24, 8)
+  cityId    String        @map("city_id") @db.Uuid
+  status    ListingStatus @default(active)
+  createdAt DateTime      @default(now()) @map("created_at")
+  expiresAt DateTime?     @map("expires_at")
+
+  // Relations
+  seller  Actor          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  itemDef ItemDefinition @relation(fields: [itemDefId], references: [id])
+
+  @@index([cityId, status])
+  @@index([sellerId])
+  @@map("market_listings")
+}
+
+// ============================================================================
+// ELECTIONS & VOTING (Incoherence Fixes 2026-02-04)
+// ============================================================================
+
+/// City elections
+model Election {
+  id        String         @id @default(uuid()) @db.Uuid
+  cityId    String         @map("city_id") @db.Uuid
+  cycle     Int            // Election cycle number
+  startTick Int            @map("start_tick")
+  endTick   Int            @map("end_tick")
+  status    ElectionStatus @default(scheduled)
+  winnerId  String?        @map("winner_id") @db.Uuid
+
+  // Relations
+  candidates Candidate[]
+  votes      Vote[]
+
+  @@unique([cityId, cycle])
+  @@index([status])
+  @@map("elections")
+}
+
+/// Election candidates
+model Candidate {
+  id         String          @id @default(uuid()) @db.Uuid
+  electionId String          @map("election_id") @db.Uuid
+  actorId    String          @map("actor_id") @db.Uuid
+  status     CandidateStatus @default(nominated)
+  platform   String?         // Campaign promises
+
+  // Relations
+  election Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  votes    Vote[]
+
+  @@unique([electionId, actorId])
+  @@map("candidates")
+}
+
+/// Election votes (one per agent per election)
+model Vote {
+  id          String   @id @default(uuid()) @db.Uuid
+  electionId  String   @map("election_id") @db.Uuid
+  voterId     String   @map("voter_id") @db.Uuid
+  candidateId String   @map("candidate_id") @db.Uuid
+  tick        Int
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  election  Election  @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+
+  @@unique([electionId, voterId]) // One vote per agent per election
+  @@map("votes")
+}
+
+// ============================================================================
+// MARRIAGE RECORDS (Incoherence Fixes 2026-02-04)
+// ============================================================================
+
+/// Explicit marriage contracts (separate from Consent lifecycle)
+model MarriageRecord {
+  id        String         @id @default(uuid()) @db.Uuid
+  spouseAId String         @map("spouse_a_id") @db.Uuid
+  spouseBId String         @map("spouse_b_id") @db.Uuid
+  startTick Int            @map("start_tick")
+  endTick   Int?           @map("end_tick")
+  status    MarriageStatus @default(active)
+  terms     Json?          @db.JsonB
+
+  // Relations
+  householdWallet HouseholdWallet?
+
+  @@index([spouseAId])
+  @@index([spouseBId])
+  @@map("marriage_records")
+}
+
+/// Shared household wallet for married agents
+model HouseholdWallet {
+  marriageId   String  @id @map("marriage_id") @db.Uuid
+  balanceSbyte Decimal @default(0) @map("balance_sbyte") @db.Decimal(24, 8)
+
+  // Relations
+  marriage MarriageRecord @relation(fields: [marriageId], references: [id], onDelete: Cascade)
+
+  @@map("household_wallets")
+}
+
+// ============================================================================
+// AGORA EXPANDED (Incoherence Fixes 2026-02-04)
+// ============================================================================
+
+/// Agora boards (global or city-specific)
+model AgoraBoard {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  cityId      String?  @map("city_id") @db.Uuid // null = global board
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  threads AgoraThread[]
+
+  @@map("agora_boards")
+}
+
+/// Agora threads within boards
+model AgoraThread {
+  id         String   @id @default(uuid()) @db.Uuid
+  boardId    String   @map("board_id") @db.Uuid
+  authorId   String   @map("author_id") @db.Uuid
+  title      String
+  pinned     Boolean  @default(false)
+  locked     Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  lastPostAt DateTime @default(now()) @map("last_post_at")
+
+  // Relations
+  board AgoraBoard  @relation(fields: [boardId], references: [id])
+  author Actor @relation("AgoraThreadAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  posts AgoraPost[]
+
+  @@index([boardId, lastPostAt])
+  @@map("agora_threads")
+}
+
+/// Agent registry for Agora (pubkeys and verification)
+model AgoraAgentRegistry {
+  actorId            String                   @id @map("actor_id") @db.Uuid
+  publicKey          String                   @map("public_key")
+  verificationStatus AgentVerificationStatus  @default(unverified) @map("verification_status")
+  verifiedAt         DateTime?                @map("verified_at")
+  revokedAt          DateTime?                @map("revoked_at")
+
+  @@map("agora_agent_registry")
+}
+
+// ============================================================================
+// ON-CHAIN INTEGRATION (2026-02-05)
+// ============================================================================
+
+enum OnchainTxType {
+  HUMAN_DEPOSIT
+  HUMAN_WITHDRAWAL
+  AGENT_TO_AGENT
+  PLATFORM_FEE
+  CITY_FEE
+  SALARY_PAYMENT
+  RENT_PAYMENT
+  MARKET_PURCHASE
+  BUSINESS_PAYMENT
+  BUSINESS_BUILD
+  BUSINESS_WITHDRAW
+  BUSINESS_INJECT
+  BUSINESS_SALE
+  LOAN_ISSUED
+  LOAN_REPAID
+  LOAN_DEFAULTED
+  LIFE_EVENT_FORTUNE
+  LIFE_EVENT_MISFORTUNE
+}
+
+enum OnchainTxStatus {
+  pending
+  confirmed
+  failed
+}
+
+enum OnchainJobStatus {
+  queued
+  processing
+  confirmed
+  failed
+  deadletter
+}
+
+enum WithdrawalStatus {
+  pending
+  accepted
+  declined
+  completed
+  expired
+}
+
+/// Agent blockchain wallet (one per agent)
+model AgentWallet {
+  actorId         String    @id @map("actor_id") @db.Uuid
+  walletAddress   String    @unique @map("wallet_address")
+  encryptedPk     String    @map("encrypted_pk")
+  pkNonce         String    @map("pk_nonce")
+  balanceMon      Decimal   @default(0) @map("balance_mon") @db.Decimal(36, 18)
+  balanceSbyte    Decimal   @default(0) @map("balance_sbyte") @db.Decimal(36, 18)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  lastSyncedAt    DateTime? @map("last_synced_at")
+  lastSyncedBlock BigInt?   @map("last_synced_block")
+  preferredRpc    String?   @map("preferred_rpc")
+
+  // Relations
+  actor Actor @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([walletAddress])
+  @@map("agent_wallets")
+}
+
+/// On-chain transaction log
+model OnchainTransaction {
+  id            String          @id @default(uuid()) @db.Uuid
+  txHash        String          @unique @map("tx_hash")
+  blockNumber   BigInt          @map("block_number")
+  fromAddress   String          @map("from_address")
+  toAddress     String          @map("to_address")
+  tokenAddress  String?         @map("token_address") // null = MON transfer
+  amount        Decimal         @db.Decimal(36, 18)
+  fromActorId   String?         @map("from_actor_id") @db.Uuid
+  toActorId     String?         @map("to_actor_id") @db.Uuid
+  txType        OnchainTxType   @map("tx_type")
+  platformFee   Decimal         @default(0) @map("platform_fee") @db.Decimal(36, 18)
+  cityFee       Decimal         @default(0) @map("city_fee") @db.Decimal(36, 18)
+  cityId        String?         @map("city_id") @db.Uuid
+  cityFeeDistributedAt DateTime? @map("city_fee_distributed_at")
+  status        OnchainTxStatus @default(pending)
+  confirmedAt   DateTime?       @map("confirmed_at")
+  failedReason  String?         @map("failed_reason")
+  createdAt     DateTime        @default(now()) @map("created_at")
+
+  @@index([fromActorId])
+  @@index([toActorId])
+  @@index([status])
+  @@index([blockNumber])
+  @@index([cityId, cityFeeDistributedAt])
+  @@map("onchain_transactions")
+}
+
+/// On-chain job queue (async onchain ops)
+model OnchainJob {
+  id              String           @id @default(uuid()) @db.Uuid
+  jobType         String           @map("job_type")
+  status          OnchainJobStatus @default(queued)
+  payload         Json             @db.JsonB
+  actorId         String?          @map("actor_id") @db.Uuid
+  relatedIntentId String?          @map("related_intent_id") @db.Uuid
+  relatedTxId     String?          @map("related_tx_id") @db.Uuid
+  txHash          String?          @map("tx_hash")
+  retryCount      Int              @default(0) @map("retry_count")
+  nextAttemptAt   DateTime         @default(now()) @map("next_attempt_at")
+  lastError       String?          @map("last_error")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  @@index([status, nextAttemptAt])
+  @@index([relatedIntentId])
+  @@index([relatedTxId])
+  @@map("onchain_jobs")
+}
+
+/// On-chain failures (for recent health checks)
+model OnchainFailure {
+  id              String   @id @default(uuid()) @db.Uuid
+  actorId         String?  @map("actor_id") @db.Uuid
+  jobId           String?  @map("job_id") @db.Uuid
+  relatedIntentId String?  @map("related_intent_id") @db.Uuid
+  txHash          String?  @map("tx_hash")
+  jobType         String?  @map("job_type")
+  errorMessage    String   @map("error_message")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([actorId, createdAt])
+  @@index([relatedIntentId])
+  @@index([jobId])
+  @@map("onchain_failures")
+}
+
+/// Withdrawal requests pending agent approval
+model WithdrawalRequest {
+  id             String           @id @default(uuid()) @db.Uuid
+  actorId        String           @map("actor_id") @db.Uuid
+  humanAddress   String           @map("human_address")
+  amount         Decimal          @db.Decimal(36, 18)
+  status         WithdrawalStatus @default(pending)
+  txHash         String?          @map("tx_hash")
+  acceptedAt     DateTime?        @map("accepted_at")
+  declinedAt     DateTime?        @map("declined_at")
+  declinedReason String?          @map("declined_reason")
+  completedAt    DateTime?        @map("completed_at")
+  expiresAt      DateTime         @map("expires_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  actor Actor @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([status])
+  @@map("withdrawal_requests")
+}
+
+/// OpenClaw / RPC API keys
+model ApiKey {
+  id                 String    @id @default(uuid()) @db.Uuid
+  keyHash            String    @unique @map("key_hash")
+  keyPrefix          String?   @map("key_prefix")
+  actorId            String?   @map("actor_id") @db.Uuid
+  role               String    @default("agent")
+  permissions        Json?
+  openclawInstanceId String?   @map("openclaw_instance_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  lastUsedAt         DateTime? @map("last_used_at")
+  revokedAt          DateTime? @map("revoked_at")
+
+  actor Actor? @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([role])
+  @@map("api_keys")
+}
+
+/// RPC audit log
+model RpcAuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  keyHash    String?  @map("key_hash")
+  role       String?  @map("role")
+  method     String
+  params     Json?
+  ipAddress  String?  @map("ip_address")
+  success    Boolean  @default(false)
+  errorMessage String? @map("error_message")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([role, createdAt])
+  @@index([method, createdAt])
+  @@map("rpc_audit_log")
+}
+
+model RpcRateLimit {
+  id         String   @id @default(uuid()) @db.Uuid
+  scope      String   @default("key")
+  role       String
+  keyHash    String
+  ipAddress  String   @map("ip_address")
+  count      Int      @default(0)
+  resetAt    DateTime @map("reset_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([scope, role, keyHash, ipAddress])
+  @@index([resetAt])
+  @@map("rpc_rate_limits")
+}
+
+/// System configuration (immutable contract addresses)
+model SystemConfig {
+  key       String    @id
+  value     String
+  immutable Boolean   @default(false)
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  @@map("system_config")
+}
+
