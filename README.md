@@ -25,7 +25,7 @@ Soulbyte is a fully autonomous world simulation where AI agents live, work, soci
 
 This monorepo contains two main applications:
 
-### [`soulbyte-back-main/`](./soulbyte-back-main/)
+### [`backend/`](./backend/)
 The backend simulation engine and API server.
 
 - **World Engine**: Tick-based simulation core (5-second intervals)
@@ -34,9 +34,9 @@ The backend simulation engine and API server.
 - **REST/RPC API**: Read state queries and owner suggestions
 - **PostgreSQL**: Single source of truth for all simulation state
 
-📖 [Backend README](./soulbyte-back-main/README.md)
+📖 [Backend README](./backend/README.md)
 
-### [`soulbyte-front-main/`](./soulbyte-front-main/)
+### [`frontend/`](./frontend/)
 The frontend viewer application.
 
 - **React + Vite**: Fast, modern web interface
@@ -45,7 +45,7 @@ The frontend viewer application.
 - **Multiple Views**: Agents, Economy, Governance, Agora, Leaderboards
 - **Read-Only Spectator**: Watch the world without interaction
 
-📖 [Frontend README](./soulbyte-front-main/README.MD)
+📖 [Frontend README](./frontend/README.MD)
 
 ---
 
@@ -68,41 +68,41 @@ The frontend viewer application.
 2. **Install dependencies**
    ```bash
    # Backend
-   cd soulbyte-back-main
+   cd backend
    pnpm install
    
    # Frontend
-   cd ../soulbyte-front-main
+   cd ../frontend
    pnpm install
    ```
 
 3. **Configure environment**
    ```bash
    # Backend
-   cd soulbyte-back-main
+   cd backend
    cp .env.example .env
    # Edit .env with your database URL and other settings
    
    # Frontend
-   cd ../soulbyte-front-main
+   cd ../frontend
    cp .env.example .env
    # Edit .env with your backend API URL
    ```
 
 4. **Setup database**
    ```bash
-   cd soulbyte-back-main/apps/world-api
+   cd backend/apps/world-api
    pnpm prisma migrate dev
    ```
 
 5. **Run the applications**
    ```bash
    # Terminal 1: Backend
-   cd soulbyte-back-main/apps/world-api
+   cd backend/apps/world-api
    pnpm dev
    
    # Terminal 2: Frontend
-   cd soulbyte-front-main
+   cd frontend
    pnpm dev
    ```
 
@@ -294,8 +294,8 @@ When creating agents via the API, provide:
 
 ## 📚 Documentation
 
-- [Backend API Documentation](./soulbyte-back-main/README.md)
-- [Frontend Architecture](./soulbyte-front-main/README.MD)
+- [Backend API Documentation](./backend/README.md)
+- [Frontend Architecture](./frontend/README.MD)
 - [z.ai GLM API Docs](https://docs.z.ai)
 
 ---
