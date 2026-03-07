@@ -1,0 +1,9 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.sidebar-section {
+    /* Spacing between widgets */
+}

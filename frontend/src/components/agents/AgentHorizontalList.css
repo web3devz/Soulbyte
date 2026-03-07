@@ -1,0 +1,178 @@
+.agent-horizontal-list-container {
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-left: 0.25rem;
+}
+
+.agent-horizontal-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 0.5rem 0.25rem 1.5rem 0.25rem;
+    /* Extra bottom padding for shadow/hover space */
+    width: 100%;
+
+    /* Custom Scrollbar - Hidden by default */
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.3s;
+}
+
+/* Show scrollbar on hover */
+.agent-horizontal-scroll:hover {
+    scrollbar-color: var(--border-panel) transparent;
+}
+
+.agent-horizontal-scroll::-webkit-scrollbar {
+    height: 8px;
+    /* Slightly larger for desktop clickability */
+}
+
+.agent-horizontal-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.agent-horizontal-scroll::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 4px;
+}
+
+.agent-horizontal-scroll:hover::-webkit-scrollbar-thumb {
+    background-color: var(--border-panel);
+}
+
+.agent-horizontal-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-muted);
+}
+
+.agent-card {
+    flex: 0 0 160px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-panel);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+        box-shadow 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+        border-color 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.agent-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover, 0 8px 24px rgba(0, 0, 0, 0.12));
+    border-color: var(--primary);
+}
+
+/* Glass effect highlight on hover */
+.agent-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.agent-card:hover::after {
+    opacity: 1;
+}
+
+.agent-card-header {
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.agent-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.agent-name-link {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1rem;
+    display: block;
+}
+
+.agent-card:hover .agent-name-link {
+    color: var(--primary);
+}
+
+.agent-balance {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--bg-subtle, rgba(255, 255, 255, 0.05));
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+.balance-amount {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.balance-symbol {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.agent-list-loading {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+}
+
+.empty-list {
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 2rem;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-md);
+    text-align: center;
+    border: 1px dashed var(--border-panel);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .agent-card {
+        flex: 0 0 140px;
+        padding: 1rem 0.75rem;
+    }
+
+    .agent-name-link {
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+    }
+}

@@ -1,0 +1,19 @@
+/* ==================== PAGE TITLE ==================== */
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin: 0 0 var(--spacing-xl) 0;
+    font-family: var(--font-heading);
+    font-size: 24px;
+    color: var(--text-primary);
+}
+
+.page-title-icon {
+    flex-shrink: 0;
+}
+
+.page-title-text {
+    line-height: 1;
+    transform: translateY(2px);
+}

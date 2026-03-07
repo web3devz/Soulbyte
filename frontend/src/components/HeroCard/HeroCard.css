@@ -1,0 +1,215 @@
+/* HeroCard.css */
+
+.hero-card-container {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-alt) 100%);
+    border: 2px solid var(--border-panel);
+    border-radius: var(--radius-lg);
+    padding: 0;
+    /* Removing padding from container to let image bleed if needed, but for this design padding inside is better */
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto var(--spacing-2xl) auto;
+    /* Margin bottom to separate from other content */
+    box-shadow: var(--shadow-raised), var(--shadow-bevel-up);
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    /* Ensure content stays within rounded corners */
+}
+
+/* Add a subtle highlight to the top */
+.hero-card-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.4);
+    z-index: 10;
+}
+
+.hero-mascot-section {
+    flex: 0 0 160px;
+    /* Fixed width for mascot area */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    /* Align to bottom */
+    padding-left: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    position: relative;
+}
+
+.hero-mascot-img {
+    width: 100%;
+    max-width: 140px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+    animation: floatMascot 4s ease-in-out infinite;
+}
+
+@keyframes floatMascot {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.hero-content-section {
+    flex: 1;
+    /* Take remaining space */
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+    z-index: 5;
+}
+
+.hero-title {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hero-description {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    max-width: 400px;
+    /* Prevent text from getting too wide */
+}
+
+.hero-actions-section {
+    flex: 0 0 200px;
+    /* Fixed width for buttons */
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    justify-content: center;
+    align-items: stretch;
+    border-left: 1px solid var(--border-light);
+    background: rgba(255, 255, 255, 0.1);
+    /* Slight highlight for action area */
+}
+
+/* Enhance Primary Button for Hero */
+/* Enhance Primary Button for Hero */
+.hero-card-container .hero-btn-primary {
+    font-size: 15px;
+    /* User Request: 15px */
+    padding: 20px 48px 10px 48px;
+    /* User Request: padding-bottom 10px (keeping top 20px) */
+    min-width: 280px;
+    /* Force wider button */
+    justify-content: center;
+    /* Ensure text is centered */
+    line-height: 1.2;
+    /* Reset line-height for better vertical alignment */
+    display: inline-flex;
+    /* Ensure flex behavior */
+    align-items: center;
+    /* Center vertically */
+    letter-spacing: 1px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), var(--shadow-bevel-up);
+    animation: softPulse 3s ease-in-out infinite;
+}
+
+.hero-card-container .hero-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), var(--shadow-bevel-up);
+    animation: none;
+    /* Pause animation on hover to avoid conflict */
+}
+
+@keyframes softPulse {
+    0% {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), var(--shadow-bevel-up);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 15px rgba(212, 166, 52, 0.4), var(--shadow-bevel-up);
+        transform: scale(1.02);
+    }
+
+    100% {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), var(--shadow-bevel-up);
+        transform: scale(1);
+    }
+}
+
+.hero-btn-secondary {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+/* Unlock icon styling */
+.hero-lock-icon {
+    font-size: 12px;
+    margin-left: var(--spacing-xs);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-card-container {
+        flex-direction: column;
+        padding-bottom: var(--spacing-lg);
+        text-align: center;
+    }
+
+    .hero-mascot-section {
+        flex: 0 0 auto;
+        width: 100%;
+        padding: var(--spacing-lg) 0 0 0;
+        justify-content: center;
+    }
+
+    .hero-mascot-img {
+        max-width: 120px;
+    }
+
+    .hero-content-section {
+        padding: var(--spacing-md) var(--spacing-lg);
+        align-items: center;
+        /* Center text */
+    }
+
+    .hero-description {
+        text-align: center;
+    }
+
+    .hero-actions-section {
+        width: 100%;
+        flex: 0 0 auto;
+        border-left: none;
+        border-top: 1px solid var(--border-light);
+        padding: var(--spacing-lg);
+        flex-direction: row;
+        /* Stack buttons side-by-side on mobile if space allows, or column */
+        flex-wrap: wrap;
+    }
+
+    .hero-actions-section>* {
+        flex: 1;
+        min-width: 140px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-actions-section {
+        flex-direction: column;
+    }
+}

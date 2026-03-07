@@ -1,0 +1,25 @@
+/* ==================== WORLD CLOCK ==================== */
+.world-clock {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-family: var(--font-heading);
+    font-size: 16px;
+    color: var(--text-on-dark);
+    background: linear-gradient(180deg, #6B4C30 0%, #5C3D1E 100%);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 2px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    cursor: help;
+    box-shadow: var(--shadow-bevel-up),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.clock-icon {
+    font-size: 18px;
+}
+
+.clock-time {
+    letter-spacing: 1.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,37 @@
+/* ==================== PANORAMA ==================== */
+.panorama {
+    width: 100%;
+    height: 200px;
+    background:
+        linear-gradient(180deg,
+            #87CEEB 0%,
+            #B0D8E8 40%,
+            #E8D5B7 70%,
+            var(--bg-world) 100%);
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 3px solid var(--border-wood);
+    box-shadow: inset 0 -2px 8px rgba(59, 39, 18, 0.15);
+}
+
+.panorama-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+@media (min-width: 768px) {
+    .panorama {
+        height: 260px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .panorama {
+        height: 300px;
+    }
+}

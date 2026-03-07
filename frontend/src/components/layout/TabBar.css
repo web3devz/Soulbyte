@@ -1,0 +1,102 @@
+/* ==================== TAB BAR ==================== */
+.tab-bar {
+    background: linear-gradient(180deg, #A0825E 0%, #8B6B48 100%);
+    border-bottom: 3px solid var(--border-dark);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(59, 39, 18, 0.25);
+}
+
+.tab-container {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.tab-container::-webkit-scrollbar {
+    display: none;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: 0 var(--spacing-lg);
+    min-height: 46px;
+    font-family: var(--font-heading);
+    font-size: 11px;
+    color: var(--tab-text-inactive);
+    text-decoration: none;
+    background: linear-gradient(180deg, #8B6B48 0%, #7A5C3A 100%);
+    border-right: 1px solid rgba(0, 0, 0, 0.15);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    cursor: pointer;
+    line-height: 1.8;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.10);
+    vertical-align: middle;
+}
+
+.tab:hover {
+    background: linear-gradient(180deg, #9B7B58 0%, #8B6B48 100%);
+    color: var(--text-on-dark);
+}
+
+.tab-active {
+    background: linear-gradient(180deg, #FDF5E6 0%, #F5ECD7 100%);
+    border-bottom-color: var(--text-accent);
+    color: var(--text-primary);
+    font-weight: bold;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        0 -1px 0 rgba(255, 255, 255, 0.15),
+        0 2px 4px rgba(59, 39, 18, 0.12);
+}
+
+.tab-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+}
+
+.tab-label {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    transform: translateY(2px);
+}
+
+@media (min-width: 768px) {
+    .tab {
+        font-size: 12px;
+        padding: 0 var(--spacing-xl);
+        min-height: 48px;
+    }
+
+    .tab-icon {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .tab-container {
+        overflow-x: visible;
+    }
+
+    .tab {
+        flex: 1;
+        justify-content: center;
+    }
+}
