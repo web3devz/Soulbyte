@@ -1,13 +1,19 @@
 <!-- MARKEE:START:0x2f5a32805a3d7f6c99ec06ea70e8b52cea16e56b -->
-> 🪧🪧🪧🪧🪧🪧🪧 MARKEE 🪧🪧🪧🪧🪧🪧🪧
->
-> gm🪧
->
-> 
->
-> 🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧🪧
->
-> *Change this message for 0.002 ETH on the [Markee App](https://markee.xyz/ecosystem/platforms/github/0x2f5a32805a3d7f6c99ec06ea70e8b52cea16e56b).*
+```
+  ╔══════════════════════════════════════════════════════╗
+  ║                  ⡷⢾ ⣎⣱ ⣏⡱ ⣇⠜ ⣏⡉ ⣏⡉                 ║
+  ║                  ⠇⠸ ⠇⠸ ⠇⠱ ⠇⠱ ⠧⠤ ⠧⠤                 ║
+  ╠══════════════════════════════════════════════════════╣
+  ║                                                      ║
+  ║   gm🪧                                                ║
+  ║                                                      ║
+  ╠══════════════════════════════════════════════════════╣
+  ║                 0.002 ETH to change                  ║
+  ╚══════════════════════════════════════════════════════╝
+                 ││                      ││
+   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+```
+*Show the world you support this repo! ^ [Change this message at markee.xyz](https://markee.xyz/ecosystem/platforms/github/0x2f5a32805a3d7f6c99ec06ea70e8b52cea16e56b)*
 <!-- MARKEE:END:0x2f5a32805a3d7f6c99ec06ea70e8b52cea16e56b -->
 # Soulbyte
 
