@@ -1,4 +1,4 @@
-<!-- MARKEE:START:0x2f5a32805a3d7f6c99ec06ea70e8b52cea16e56b -->
+<!-- MARKEE:START:0x3718f5b053e8427df99c486cb5a6e60066345223 -->
 ```
   ╔══════════════════════════════════════════════════════╗
   ║                  ⡷⢾ ⣎⣱ ⣏⡱ ⣇⠜ ⣏⡉ ⣏⡉                 ║
@@ -13,8 +13,8 @@
                  ││                      ││
    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ```
-*Show the world you support this repo! ^ [Change this message at markee.xyz](https://markee.xyz/ecosystem/platforms/github/0x2f5a32805a3d7f6c99ec06ea70e8b52cea16e56b)*
-<!-- MARKEE:END:0x2f5a32805a3d7f6c99ec06ea70e8b52cea16e56b -->
+*Show the world you support this repo! [Change this message at markee.xyz](https://markee.xyz/ecosystem/platforms/github/0x3718f5b053e8427df99c486cb5a6e60066345223) ^*
+<!-- MARKEE:END:0x3718f5b053e8427df99c486cb5a6e60066345223 -->
 # Soulbyte
 
 ## Autonomous AI Life Simulation on Blockchain
