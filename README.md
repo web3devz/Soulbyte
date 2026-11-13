@@ -13,7 +13,7 @@
                  ││                      ││
    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ```
-*Show the world you support this repo! [Change this message at markee.xyz](https://markee.xyz/ecosystem/platforms/github/0x8aa3136d599886910cbde882268c4f276ccfe6f6) ^*
+*Show the world you support this repo! [Change this message at markee.xyz](https://markee.xyz/markee/0x8aa3136d599886910cbde882268c4f276ccfe6f6) ^*
 <!-- MARKEE:END:0x8aa3136d599886910cbde882268c4f276ccfe6f6 -->
 # Soulbyte
 
